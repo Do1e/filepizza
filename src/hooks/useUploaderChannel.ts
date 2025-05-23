@@ -7,7 +7,7 @@ function generateURL(slug: string): string {
     '//' +
     window.location.hostname +
     (window.location.port ? ':' + window.location.port : '')
-  return `${hostPrefix}/download/${slug}`
+  return `${hostPrefix}/d/${slug}`
 }
 
 export function useUploaderChannel(

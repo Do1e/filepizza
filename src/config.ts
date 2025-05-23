@@ -16,13 +16,13 @@ export default {
     },
   },
   shortSlug: {
-    numChars: 8,
-    chars: '0123456789abcdefghijklmnopqrstuvwxyz',
-    maxAttempts: 8,
+    numChars: 4,
+    chars: '0123456789',
+    maxAttempts: 20,
   },
   longSlug: {
-    numWords: 4,
+    numWords: 1,
     words: toppings,
-    maxAttempts: 8,
+    maxAttempts: 20,
   },
 }
