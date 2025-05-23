@@ -1,35 +1,39 @@
 services:
   redis:
     image: redis:latest
-    ports:
-      - 6379:6379
+    container_name: filepizza-redis
+    restart: unless-stopped
     networks:
       - filepizza
     volumes:
-      - redis_data:/data
+      - ./redis_data:/data
   coturn:
     image: coturn/coturn
+    container_name: filepizza-coturn
+    restart: unless-stopped
     ports:
       - 3478:3478
       - 3478:3478/udp
       - 5349:5349
       - 5349:5349/udp
-      # Relay Ports
-      # - 49152-65535:49152-65535/udp
+      - 60000-60128:60000-60128/udp
     environment:
       - DETECT_EXTERNAL_IP=yes
       - DETECT_RELAY_IP=yes
-    command: -n --log-file=stdout --redis-userdb="ip=redis connect_timeout=30"
+    command: -n --log-file=stdout --redis-userdb="ip=redis connect_timeout=30" --min-port=60000 --max-port=60128
     networks:
       - filepizza
   filepizza:
     build: .
-    image: kern/filepizza:latest
+    image: do1e/filepizza:latest
+    container_name: filepizza
+    restart: unless-stopped
     ports:
-      - 8080:8080
+      - 127.0.0.1:18705:18705
     environment:
-      - PORT=8080
+      - PORT=18705
       - REDIS_URL=redis://redis:6379
+      - COTURN_ENABLED=true
     networks:
       - filepizza
     depends_on:
@@ -38,6 +42,3 @@ services:
 networks:
   filepizza:
     driver: bridge
-
-volumes:
-  redis_data:
