@@ -14,8 +14,10 @@ import CancelButton from '../components/CancelButton'
 import { useMemo } from 'react'
 import { getFileName } from '../fs'
 import TitleText from '../components/TitleText'
+import SubtitleText from '../components/SubtitleText'
 import { pluralize } from '../utils/pluralize'
 import TermsAcceptance from '../components/TermsAcceptance'
+import AddFilesButton from '../components/AddFilesButton'
 
 function PageWrapper({ children }: { children: React.ReactNode }): JSX.Element {
   return (
@@ -59,6 +61,7 @@ function ConfirmUploadState({
   onCancel,
   onStart,
   onRemoveFile,
+  onAddFiles,
 }: {
   uploadedFiles: UploadedFile[]
   password: string
@@ -66,13 +69,15 @@ function ConfirmUploadState({
   onCancel: () => void
   onStart: () => void
   onRemoveFile: (index: number) => void
+  onAddFiles: (files: UploadedFile[]) => void
 }): JSX.Element {
   const fileListData = useUploaderFileListData(uploadedFiles)
   return (
     <PageWrapper>
       <TitleText>
         You are about to start uploading{' '}
-        {pluralize(uploadedFiles.length, 'file', 'files')}.
+        {pluralize(uploadedFiles.length, 'file', 'files')}.{' '}
+        <AddFilesButton onAdd={onAddFiles} />
       </TitleText>
       <UploadFileList files={fileListData} onRemove={onRemoveFile} />
       <PasswordField value={password} onChange={onChangePassword} />
@@ -99,6 +104,9 @@ function UploadingState({
       <TitleText>
         You are uploading {pluralize(uploadedFiles.length, 'file', 'files')}.
       </TitleText>
+      <SubtitleText>
+        Leave this tab open. FilePizza does not store files.
+      </SubtitleText>
       <UploadFileList files={fileListData} />
       <WebRTCPeerProvider>
         <Uploader files={uploadedFiles} password={password} onStop={onStop} />
@@ -137,6 +145,10 @@ export default function UploadPage(): JSX.Element {
     setUploadedFiles((fs) => fs.filter((_, i) => i !== index))
   }, [])
 
+  const handleAddFiles = useCallback((files: UploadedFile[]) => {
+    setUploadedFiles((fs) => [...fs, ...files])
+  }, [])
+
   if (!uploadedFiles.length) {
     return <InitialState onDrop={handleDrop} />
   }
@@ -150,6 +162,7 @@ export default function UploadPage(): JSX.Element {
         onCancel={handleCancel}
         onStart={handleStart}
         onRemoveFile={handleRemoveFile}
+        onAddFiles={handleAddFiles}
       />
     )
   }
